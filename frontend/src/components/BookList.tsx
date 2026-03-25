@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { API_BASE_URL } from '../config/api'
+import { saveBookListSession } from '../utils/bookListSession'
+import type { BookListSessionState } from '../utils/bookListSession'
 
 export interface Book {
   bookID: number
@@ -20,19 +24,45 @@ interface PagedResult<T> {
   pageSize: number
 }
 
-const API_BASE_URL = 'http://127.0.0.1:4000' // avoid IPv6 localhost resolution issues
+type Props = {
+  selectedCategories: string[]
+  initialListState: BookListSessionState | null
+}
 
-export function BookList() {
+export function BookList({ selectedCategories, initialListState }: Props) {
+  const navigate = useNavigate()
   const [books, setBooks] = useState<Book[]>([])
-  const [pageNumber, setPageNumber] = useState(1)
-  const [pageSize, setPageSize] = useState(5)
+  const [pageNumber, setPageNumber] = useState(
+    initialListState?.pageNumber ?? 1,
+  )
+  const [pageSize, setPageSize] = useState(initialListState?.pageSize ?? 5)
   const [totalCount, setTotalCount] = useState(0)
-  const [sortBy, setSortBy] = useState<'title' | null>('title')
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
+  const [sortBy, setSortBy] = useState<'title' | null>(
+    initialListState?.sortBy ?? 'title',
+  )
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(
+    initialListState?.sortDirection ?? 'asc',
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+
+  // When filters change, go back to page 1 so paging matches filtered count
+  useEffect(() => {
+    setPageNumber(1)
+  }, [selectedCategories.join('|')])
+
+  // Persist list state for "Continue shopping" / session restore
+  useEffect(() => {
+    saveBookListSession({
+      pageNumber,
+      pageSize,
+      selectedCategories,
+      sortBy,
+      sortDirection,
+    })
+  }, [pageNumber, pageSize, selectedCategories, sortBy, sortDirection])
 
   useEffect(() => {
     async function loadBooks() {
@@ -40,7 +70,7 @@ export function BookList() {
         setIsLoading(true)
         setError(null)
 
-        const params: Record<string, string | number> = {
+        const params: Record<string, string | number | string[]> = {
           pageNumber,
           pageSize,
         }
@@ -50,22 +80,41 @@ export function BookList() {
           params.sortDirection = sortDirection
         }
 
+        if (selectedCategories.length > 0) {
+          params.categories = selectedCategories
+        }
+
+        // Repeat categories=foo&categories=bar so the API can bind List<string> categories
         const response = await axios.get<PagedResult<Book>>(
           `${API_BASE_URL}/api/books`,
-          { params },
+          {
+            params,
+            paramsSerializer: (p) => {
+              const sp = new URLSearchParams()
+              Object.entries(p).forEach(([key, value]) => {
+                if (value === undefined || value === null) return
+                if (Array.isArray(value)) {
+                  value.forEach((v) => sp.append(key, String(v)))
+                } else {
+                  sp.append(key, String(value))
+                }
+              })
+              return sp.toString()
+            },
+          },
         )
 
         setBooks(response.data.items)
         setTotalCount(response.data.totalCount)
       } catch (err) {
-        setError('Failed to load books. Please make sure the API is running.')
+        setError('Failed to load books. Is the API running on HTTPS :5000?')
       } finally {
         setIsLoading(false)
       }
     }
 
     loadBooks()
-  }, [pageNumber, pageSize, sortBy, sortDirection])
+  }, [pageNumber, pageSize, sortBy, sortDirection, selectedCategories])
 
   function handlePreviousPage() {
     setPageNumber((prev) => Math.max(1, prev - 1))
@@ -87,9 +136,20 @@ export function BookList() {
     setPageNumber(1)
   }
 
+  function goAddToCart(book: Book) {
+    saveBookListSession({
+      pageNumber,
+      pageSize,
+      selectedCategories,
+      sortBy,
+      sortDirection,
+    })
+    navigate(`/add-to-cart/${book.bookID}`)
+  }
+
   return (
-    <div className="container my-4">
-      <h1 className="mb-4 text-dark">Online Bookstore</h1>
+    <div>
+      <h1 className="mb-4 text-dark h2">Browse books</h1>
 
       {error && (
         <div className="alert alert-danger" role="alert">
@@ -97,7 +157,7 @@ export function BookList() {
         </div>
       )}
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
         <div>
           <label htmlFor="pageSizeSelect" className="me-2">
             Results per page:
@@ -119,8 +179,8 @@ export function BookList() {
         </div>
       </div>
 
-      <div className="table-responsive">
-        <table className="table table-striped table-hover">
+      <div className="table-responsive w-100">
+        <table className="table table-sm table-striped table-hover align-middle mb-0">
           <thead>
             <tr>
               <th
@@ -140,18 +200,19 @@ export function BookList() {
               <th scope="col">Category</th>
               <th scope="col">Pages</th>
               <th scope="col">Price</th>
+              <th scope="col">Cart</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="text-center">
+                <td colSpan={9} className="text-center">
                   Loading...
                 </td>
               </tr>
             ) : books.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center">
+                <td colSpan={9} className="text-center">
                   No books found.
                 </td>
               </tr>
@@ -166,6 +227,15 @@ export function BookList() {
                   <td>{book.category}</td>
                   <td>{book.pageCount}</td>
                   <td>${book.price.toFixed(2)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-success"
+                      onClick={() => goAddToCart(book)}
+                    >
+                      Add
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
@@ -176,6 +246,7 @@ export function BookList() {
       <div className="d-flex justify-content-between align-items-center mt-3">
         <button
           className="btn btn-primary"
+          type="button"
           onClick={handlePreviousPage}
           disabled={pageNumber === 1}
         >
@@ -184,6 +255,7 @@ export function BookList() {
 
         <button
           className="btn btn-primary"
+          type="button"
           onClick={handleNextPage}
           disabled={pageNumber === totalPages}
         >
@@ -193,4 +265,3 @@ export function BookList() {
     </div>
   )
 }
-

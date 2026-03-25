@@ -16,12 +16,40 @@ public class BooksController : ControllerBase
         _context = context;
     }
 
+    // Pull category names from the database for the filter UI (not inserting—just reading)
+    // GET: all distinct categories from the Books table (for filter checkboxes)
+    [HttpGet("categories")]
+    public async Task<ActionResult<List<string>>> GetCategories()
+    {
+        var categories = await _context.Books
+            .Select(b => b.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToListAsync();
+
+        return Ok(categories);
+    }
+
+    // GET: one book by id (used on the add-to-cart page)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<Book>> GetBook(int id)
+    {
+        var book = await _context.Books.FindAsync(id);
+        if (book == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(book);
+    }
+
     [HttpGet]
     public async Task<ActionResult<PagedResult<Book>>> GetBooks(
         int pageNumber = 1,
         int pageSize = 5,
         string? sortBy = null,
-        string sortDirection = "asc")
+        string sortDirection = "asc",
+        [FromQuery] List<string>? categories = null)
     {
         if (pageNumber < 1)
         {
@@ -33,7 +61,13 @@ public class BooksController : ControllerBase
             pageSize = 5;
         }
 
+        // Filter in memory of EF query before Skip/Take so page count matches category
         IQueryable<Book> query = _context.Books;
+
+        if (categories is { Count: > 0 })
+        {
+            query = query.Where(b => categories.Contains(b.Category));
+        }
 
         if (!string.IsNullOrWhiteSpace(sortBy) &&
             sortBy.Equals("title", StringComparison.OrdinalIgnoreCase))
@@ -74,4 +108,3 @@ public class PagedResult<T>
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
 }
-

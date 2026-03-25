@@ -50,12 +50,12 @@
   }
 }
 
+/* Full-width app shell so the bookstore grid and table can use the whole window */
 #root {
-  width: 1126px;
+  width: 100%;
   max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  margin: 0;
+  text-align: left;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -64,6 +64,11 @@
 
 body {
   margin: 0;
+}
+
+/* Lets a grid/flex child shrink so wide tables scroll inside the column instead of the whole layout */
+.min-width-0 {
+  min-width: 0;
 }
 
 h1,

@@ -147,3 +147,4 @@ C:\Users\jhunt\OneDrive - Brigham Young University\Documents\School\Enterprise A
 C:\Users\jhunt\OneDrive - Brigham Young University\Documents\School\Enterprise App Dev\Mission11_JeremyRichards\backend\Bookstore.API\bin\Debug\net10.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\jhunt\OneDrive - Brigham Young University\Documents\School\Enterprise App Dev\Mission11_JeremyRichards\backend\Bookstore.API\bin\Debug\net10.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 C:\Users\jhunt\OneDrive - Brigham Young University\Documents\School\Enterprise App Dev\Mission11_JeremyRichards\backend\Bookstore.API\bin\Debug\net10.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
+c:\Users\jhunt\OneDrive - Brigham Young University\Documents\School\Enterprise App Dev\Mission11_JeremyRichards\backend\Bookstore.API\obj\Debug\net10.0\Bookstore.API.sourcelink.json
