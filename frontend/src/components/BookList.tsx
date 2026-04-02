@@ -4,6 +4,9 @@ import axios from 'axios'
 import { API_BASE_URL } from '../config/api'
 import { saveBookListSession } from '../utils/bookListSession'
 import type { BookListSessionState } from '../utils/bookListSession'
+import { deleteBook } from '../api/BookAPI'
+import NewBookForm from './NewBookForm'
+import EditBookForm from './EditBookForm'
 
 export interface Book {
   bookID: number
@@ -29,6 +32,7 @@ type Props = {
   initialListState: BookListSessionState | null
 }
 
+// Main book list + cart + DB CRUD on the same page (default user = admin, like Water Project intent)
 export function BookList({ selectedCategories, initialListState }: Props) {
   const navigate = useNavigate()
   const [books, setBooks] = useState<Book[]>([])
@@ -45,8 +49,12 @@ export function BookList({ selectedCategories, initialListState }: Props) {
   )
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [editingBook, setEditingBook] = useState<Book | null>(null)
 
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  const colCount = 11
 
   // When filters change, go back to page 1 so paging matches filtered count
   useEffect(() => {
@@ -84,7 +92,6 @@ export function BookList({ selectedCategories, initialListState }: Props) {
           params.categories = selectedCategories
         }
 
-        // Repeat categories=foo&categories=bar so the API can bind List<string> categories
         const response = await axios.get<PagedResult<Book>>(
           `${API_BASE_URL}/api/books`,
           {
@@ -114,7 +121,18 @@ export function BookList({ selectedCategories, initialListState }: Props) {
     }
 
     loadBooks()
-  }, [pageNumber, pageSize, sortBy, sortDirection, selectedCategories])
+  }, [
+    pageNumber,
+    pageSize,
+    sortBy,
+    sortDirection,
+    selectedCategories,
+    reloadKey,
+  ])
+
+  function bumpReload() {
+    setReloadKey((k) => k + 1)
+  }
 
   function handlePreviousPage() {
     setPageNumber((prev) => Math.max(1, prev - 1))
@@ -147,6 +165,17 @@ export function BookList({ selectedCategories, initialListState }: Props) {
     navigate(`/add-to-cart/${book.bookID}`)
   }
 
+  async function handleDeleteBook(bookId: number) {
+    const ok = window.confirm('Are you sure you want to delete this book?')
+    if (!ok) return
+    try {
+      await deleteBook(bookId)
+      bumpReload()
+    } catch (e) {
+      setError((e as Error).message)
+    }
+  }
+
   return (
     <div>
       <h1 className="mb-4 text-dark h2">Browse books</h1>
@@ -155,6 +184,37 @@ export function BookList({ selectedCategories, initialListState }: Props) {
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
+      )}
+
+      {!showAddForm && (
+        <button
+          type="button"
+          className="btn btn-success mb-3"
+          onClick={() => setShowAddForm(true)}
+        >
+          Add new book
+        </button>
+      )}
+
+      {showAddForm && (
+        <NewBookForm
+          onSuccess={() => {
+            setShowAddForm(false)
+            bumpReload()
+          }}
+          onCancel={() => setShowAddForm(false)}
+        />
+      )}
+
+      {editingBook && (
+        <EditBookForm
+          book={editingBook}
+          onSuccess={() => {
+            setEditingBook(null)
+            bumpReload()
+          }}
+          onCancel={() => setEditingBook(null)}
+        />
       )}
 
       <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
@@ -201,18 +261,20 @@ export function BookList({ selectedCategories, initialListState }: Props) {
               <th scope="col">Pages</th>
               <th scope="col">Price</th>
               <th scope="col">Cart</th>
+              <th scope="col">Edit</th>
+              <th scope="col">Delete</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={9} className="text-center">
+                <td colSpan={colCount} className="text-center">
                   Loading...
                 </td>
               </tr>
             ) : books.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center">
+                <td colSpan={colCount} className="text-center">
                   No books found.
                 </td>
               </tr>
@@ -234,6 +296,24 @@ export function BookList({ selectedCategories, initialListState }: Props) {
                       onClick={() => goAddToCart(book)}
                     >
                       Add
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-primary"
+                      onClick={() => setEditingBook(book)}
+                    >
+                      Edit
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleDeleteBook(book.bookID)}
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>

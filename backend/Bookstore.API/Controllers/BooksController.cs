@@ -99,6 +99,54 @@ public class BooksController : ControllerBase
 
         return Ok(result);
     }
+
+    // POST: insert a new row into Books (Mission 13 admin)
+    [HttpPost("AddBook")]
+    public async Task<ActionResult<Book>> AddBook([FromBody] Book book)
+    {
+        book.BookID = 0;
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+        return Ok(book);
+    }
+
+    // PUT: change an existing book in the database
+    [HttpPut("UpdateBook/{id:int}")]
+    public async Task<ActionResult<Book>> UpdateBook(int id, [FromBody] Book updated)
+    {
+        var existing = await _context.Books.FindAsync(id);
+        if (existing == null)
+        {
+            return NotFound();
+        }
+
+        existing.Title = updated.Title;
+        existing.Author = updated.Author;
+        existing.Publisher = updated.Publisher;
+        existing.ISBN = updated.ISBN;
+        existing.Classification = updated.Classification;
+        existing.Category = updated.Category;
+        existing.PageCount = updated.PageCount;
+        existing.Price = updated.Price;
+
+        await _context.SaveChangesAsync();
+        return Ok(existing);
+    }
+
+    // DELETE: remove a book row from the database
+    [HttpDelete("DeleteBook/{id:int}")]
+    public async Task<IActionResult> DeleteBook(int id)
+    {
+        var existing = await _context.Books.FindAsync(id);
+        if (existing == null)
+        {
+            return NotFound();
+        }
+
+        _context.Books.Remove(existing);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
 }
 
 public class PagedResult<T>
