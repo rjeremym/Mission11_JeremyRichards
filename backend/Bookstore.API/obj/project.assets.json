@@ -508,6 +508,19 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
+      "Microsoft.Extensions.Logging.AzureAppServices/10.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net10.0/Microsoft.Extensions.Logging.AzureAppServices.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net10.0/Microsoft.Extensions.Logging.AzureAppServices.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.OpenApi/2.0.0": {
         "type": "package",
         "compile": {
@@ -2099,6 +2112,26 @@
         "useSharedDesignerContext.txt"
       ]
     },
+    "Microsoft.Extensions.Logging.AzureAppServices/10.0.0": {
+      "sha512": "asvva6/ernN9dw83xwiKpBcJhB2myVC3NzUf/c+qH2HnF+iqfFN1/2HnhyoTaTKcO0Jx+dZ/r/as/5PMZpqYug==",
+      "type": "package",
+      "path": "microsoft.extensions.logging.azureappservices/10.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "PACKAGE.md",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net10.0/Microsoft.Extensions.Logging.AzureAppServices.dll",
+        "lib/net10.0/Microsoft.Extensions.Logging.AzureAppServices.xml",
+        "lib/net462/Microsoft.Extensions.Logging.AzureAppServices.dll",
+        "lib/net462/Microsoft.Extensions.Logging.AzureAppServices.xml",
+        "lib/netstandard2.0/Microsoft.Extensions.Logging.AzureAppServices.dll",
+        "lib/netstandard2.0/Microsoft.Extensions.Logging.AzureAppServices.xml",
+        "microsoft.extensions.logging.azureappservices.10.0.0.nupkg.sha512",
+        "microsoft.extensions.logging.azureappservices.nuspec"
+      ]
+    },
     "Microsoft.OpenApi/2.0.0": {
       "sha512": "GGYLfzV/G/ct80OZ45JxnWP7NvMX1BCugn/lX7TH5o0lcVaviavsLMTxmFV2AybXWjbi3h6FF1vgZiTK6PXndw==",
       "type": "package",
@@ -2468,7 +2501,8 @@
       "Microsoft.AspNetCore.OpenApi >= 10.0.4",
       "Microsoft.EntityFrameworkCore >= 10.0.3",
       "Microsoft.EntityFrameworkCore.Design >= 10.0.3",
-      "Microsoft.EntityFrameworkCore.Sqlite >= 10.0.3"
+      "Microsoft.EntityFrameworkCore.Sqlite >= 10.0.3",
+      "Microsoft.Extensions.Logging.AzureAppServices >= 10.0.0"
     ]
   },
   "packageFolders": {
@@ -2538,6 +2572,10 @@
           "Microsoft.EntityFrameworkCore.Sqlite": {
             "target": "Package",
             "version": "[10.0.3, )"
+          },
+          "Microsoft.Extensions.Logging.AzureAppServices": {
+            "target": "Package",
+            "version": "[10.0.0, )"
           }
         },
         "imports": [

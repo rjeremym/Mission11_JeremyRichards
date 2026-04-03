@@ -14,12 +14,18 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="10.0.0" />
   </ItemGroup>
 
+  <!-- Prefer DB at solution root so publish/deploy includes the real file; fallback: Bookstore.sqlite next to .csproj. -->
   <ItemGroup>
-    <None Include="..\..\Bookstore.sqlite">
+    <None Include="..\..\Bookstore.sqlite" Link="Bookstore.sqlite" Condition="Exists('..\..\Bookstore.sqlite')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Link>Bookstore.sqlite</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup Condition="!Exists('..\..\Bookstore.sqlite')">
+    <None Update="Bookstore.sqlite">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

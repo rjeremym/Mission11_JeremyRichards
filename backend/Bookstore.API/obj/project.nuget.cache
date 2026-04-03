@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Z0WWEvS33Ng=",
+  "dgSpecHash": "0A0zBGYMGu8=",
   "success": true,
   "projectFilePath": "C:\\Users\\jhunt\\OneDrive - Brigham Young University\\Documents\\School\\Enterprise App Dev\\Mission11_JeremyRichards\\backend\\Bookstore.API\\Bookstore.API.csproj",
   "expectedPackageFiles": [
@@ -22,6 +22,7 @@
     "C:\\Users\\jhunt\\.nuget\\packages\\microsoft.entityframeworkcore.sqlite\\10.0.3\\microsoft.entityframeworkcore.sqlite.10.0.3.nupkg.sha512",
     "C:\\Users\\jhunt\\.nuget\\packages\\microsoft.entityframeworkcore.sqlite.core\\10.0.3\\microsoft.entityframeworkcore.sqlite.core.10.0.3.nupkg.sha512",
     "C:\\Users\\jhunt\\.nuget\\packages\\microsoft.extensions.dependencymodel\\10.0.3\\microsoft.extensions.dependencymodel.10.0.3.nupkg.sha512",
+    "C:\\Users\\jhunt\\.nuget\\packages\\microsoft.extensions.logging.azureappservices\\10.0.0\\microsoft.extensions.logging.azureappservices.10.0.0.nupkg.sha512",
     "C:\\Users\\jhunt\\.nuget\\packages\\microsoft.openapi\\2.0.0\\microsoft.openapi.2.0.0.nupkg.sha512",
     "C:\\Users\\jhunt\\.nuget\\packages\\microsoft.visualstudio.solutionpersistence\\1.0.52\\microsoft.visualstudio.solutionpersistence.1.0.52.nupkg.sha512",
     "C:\\Users\\jhunt\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
